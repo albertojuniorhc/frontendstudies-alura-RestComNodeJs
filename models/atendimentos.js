@@ -24,7 +24,7 @@ class Atendimento {
             }
         ];
 
-        const erros = validacoes.filter(campo => !campo.valido); //NAO ENTENDI A SINTAXE
+        const erros = validacoes.filter(campo => !campo.valido); //NAO ENTENDI A SINTAXE ==> Retorna um array sempre que econtrar o valor "false" na chave "valido"
         const existemErros = erros.length;
 
         if(existemErros){
