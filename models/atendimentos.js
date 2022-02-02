@@ -2,12 +2,13 @@ const moment = require('moment')
 const conexao = require('../infraestrutura/conexao')
 
 class Atendimento {
-    adiciona(atendimento, res){
+    adiciona({data, cliente, ...resAtendimento}, res){
+        
         const dataCriacao = moment().format('YYYY-MM-DD HH:mm:ss');
-        const data = moment(atendimento.data, 'DD/MM/YYYY').format('YYYY-MM-DD HH:mm:ss');
+        const dataMoment = moment(data, 'DD/MM/YYYY').format('YYYY-MM-DD HH:mm:ss'); // pegando a data enviada pelo client, e colocando no padrao do moment
 
-        const dataEhValida = moment(data).isSameOrAfter(dataCriacao);
-        const clienteEhValido = atendimento.cliente.length >= 5;
+        const dataEhValida = moment(dataMoment).isSameOrAfter(dataCriacao);
+        const clienteEhValido = cliente.length >= 5;
 
         // console.log(dataEhValida, clienteEhValido)
 
@@ -30,7 +31,7 @@ class Atendimento {
         if(existemErros){
             res.status(400).json(erros)
         } else {
-            const atendimentoDatado = {...atendimento, dataCriacao, data}
+            const atendimentoDatado = {...resAtendimento, cliente, dataCriacao, data: dataMoment}
             const sql = 'INSERT INTO Atendimentos SET ?'
     
             conexao.query(sql, atendimentoDatado, (erro, resultados) => {
