@@ -2,30 +2,28 @@ const moment = require('moment')
 const conexao = require('../infraestrutura/conexao')
 const formatoDataHora = 'YYYY-MM-DD HH:mm:ss'
 
-// const padronizaDataHora = (dataHora) => {
-//     return moment(dataHora, 'DD/MM/YYYY').format(formatoDataHora);
-// }
+const padronizaDataHora = (dataHora) => {
+    return moment(dataHora, 'DD/MM/YYYY').format(formatoDataHora);
+}
 
 const geraDataHoraAtual = () => {
     return moment().format(formatoDataHora);
 }
 
 const conexaoFinal = (sql, dados = null, res ) => {
-    console.log('*****', dados)
     conexao.query(sql, dados, (erro, resultados) => {
+        
+        if (!dados) dados = resultados
+        
         if(erro){
             res.status(400).json(erro);
         } else {
-            (!dados) ? res.status(200).json(resultados) :  res.status(201).json(dados);
+            res.status(200).json(dados);
         }
     });
 }
 
 class Atendimento {
-    padronizaDataHora (dataHora){
-        return moment(dataHora, 'DD/MM/YYYY').format(formatoDataHora);
-    }
-
     adiciona(atendimento, res){    
         const dataCriacao = geraDataHoraAtual();
         const dataMoment = padronizaDataHora(atendimento.data);
@@ -46,7 +44,7 @@ class Atendimento {
             }
         ];
 
-        const erros = validacoes.filter(campo => !campo.valido);  //Retorna um array sempre que econtrar o valor "false" na chave "valido"
+        const erros = validacoes.filter(campo => !campo.valido);
         const existemErros = erros.length;
 
         if(existemErros){
@@ -54,8 +52,7 @@ class Atendimento {
         } else {
             const atendimentoDatado = {...atendimento, dataCriacao, data: dataMoment}
             const sql = 'INSERT INTO Atendimentos SET ?'
-
-            conexaoFinal(sql, atendimentoDatado, res);
+            conexaoFinal(sql, [atendimentoDatado], res);
         }
     }
 
@@ -75,15 +72,15 @@ class Atendimento {
         if (valores.data) {
             valores.data = moment(valores.data, 'DD/MM/YYYY').format('YYYY-MM-DD HH:mm:ss');
         }
-        const sql = `UPDATE Atendimentos SET ? WHERE id=?`
+        const sql = `UPDATE Atendimentos SET ? WHERE id=${id}`
 
-        conexaoFinal(sql, [valores, id], res);
+        conexaoFinal(sql, [valores], res);
     }
 
     delete(id, res){
-        const sql = 'DELETE FROM Atendimentos WHERE id=?';
+        const sql = `DELETE FROM Atendimentos WHERE id=${id}`;
 
-        conexaoFinal(sql, id, res);
+        conexaoFinal(sql, [{id}], res);
     }
 }
 
