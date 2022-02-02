@@ -2,26 +2,30 @@ const moment = require('moment')
 const conexao = require('../infraestrutura/conexao')
 const formatoDataHora = 'YYYY-MM-DD HH:mm:ss'
 
-const padronizaDataHora = (dataHora) => {
-    return moment(dataHora, 'DD/MM/YYYY').format(formatoDataHora);
-}
+// const padronizaDataHora = (dataHora) => {
+//     return moment(dataHora, 'DD/MM/YYYY').format(formatoDataHora);
+// }
 
 const geraDataHoraAtual = () => {
     return moment().format(formatoDataHora);
 }
 
 const conexaoFinal = (sql, dados = null, res ) => {
-    console.log(dados, res)
+    console.log('*****', dados)
     conexao.query(sql, dados, (erro, resultados) => {
         if(erro){
             res.status(400).json(erro);
         } else {
-            !dados ? res.status(200).json(resultados) :  res.status(201).json(dados);
+            (!dados) ? res.status(200).json(resultados) :  res.status(201).json(dados);
         }
     });
 }
 
 class Atendimento {
+    padronizaDataHora (dataHora){
+        return moment(dataHora, 'DD/MM/YYYY').format(formatoDataHora);
+    }
+
     adiciona(atendimento, res){    
         const dataCriacao = geraDataHoraAtual();
         const dataMoment = padronizaDataHora(atendimento.data);
@@ -42,7 +46,7 @@ class Atendimento {
             }
         ];
 
-        const erros = validacoes.filter(campo => !campo.valido); //NAO ENTENDI A SINTAXE ==> Retorna um array sempre que econtrar o valor "false" na chave "valido"
+        const erros = validacoes.filter(campo => !campo.valido);  //Retorna um array sempre que econtrar o valor "false" na chave "valido"
         const existemErros = erros.length;
 
         if(existemErros){
