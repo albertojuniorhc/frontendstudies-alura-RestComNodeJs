@@ -1,19 +1,20 @@
-class Tabelas {
-    init(conexao){
-        this.conexao = conexao;
-        this.criarAtendimetos()
-    }
+class Tables {
+  init(connection) {
+    this.connection = connection;
+    this.createServices();
+  }
 
-    criarAtendimetos(){
-        const sql = 'CREATE TABLE IF NOT EXISTS Atendimentos (id int NOT NULL AUTO_INCREMENT, cliente varchar(50) NOT NULL, pet varchar(20), servico varchar(20) NOT NULL, data datetime NOT NULL, dataCriacao datetime NOT NULL, status varchar(20) NOT NULL, observacoes text, PRIMARY KEY(id))'
-        this.conexao.query(sql, (erro) => {
-            if (erro) {
-                console.log(erro)
-            } else {
-                console.log('Tabela Atendimentos criada com sucesso ou já existente.')
-            }
-        })
-    }
+  createServices() {
+    const sql =
+      "CREATE TABLE IF NOT EXISTS Services (id int NOT NULL AUTO_INCREMENT, client varchar(50) NOT NULL, pet varchar(20), service varchar(20) NOT NULL, date datetime NOT NULL, dateCreation datetime NOT NULL, status varchar(20) NOT NULL, observation text, PRIMARY KEY(id))";
+    this.connection.query(sql, (error) => {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log("Table Services created or already exists.");
+      }
+    });
+  }
 }
 
-module.exports = new Tabelas;
+module.exports = new Tables();
