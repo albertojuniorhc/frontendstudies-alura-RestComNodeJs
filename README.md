@@ -33,7 +33,7 @@ GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, INDEX, DROP, ALTER, CREATE TEMPORA
 
 These settings can be changed at `./infrastructure/connection.js`
 
-⚠️ These settings will be updated to create automatically on the project. 
+⚠️ The MySQL settings will be improved to create the database automatically on the MySQL Server. 
 
 ### To run the project:
 
