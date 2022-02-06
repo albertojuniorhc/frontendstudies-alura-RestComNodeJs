@@ -18,11 +18,10 @@
   },
   "homepage": "https://github.com/albertojuniorhc/frontendstudies-alura-RestComNodeJs#readme",
   "dependencies": {
-    "body-parser": "^1.19.1",
     "consign": "^0.1.6",
+    "dotenv": "^16.0.0",
     "express": "^4.17.2",
     "moment": "^2.29.1",
-    "mysql": "^2.18.1",
     "mysql2": "^2.3.3"
   },
   "devDependencies": {
