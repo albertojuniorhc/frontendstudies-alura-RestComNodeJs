@@ -1,6 +1,6 @@
 const customExpress = require('./config/customExpress');
-const conexao = require('./infraestrutura/conexao');
-const Tabelas = require('./infraestrutura/tabelas')
+const conexao = require('./infrastructure/connection');
+const Tabelas = require('./infrastructure/tables')
 
 conexao.connect((erro) => {
     if(erro){
@@ -16,4 +16,4 @@ conexao.connect((erro) => {
         })
         
     }
-})
+});

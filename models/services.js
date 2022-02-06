@@ -1,5 +1,5 @@
 const moment = require('moment')
-const conexao = require('../infraestrutura/conexao')
+const conexao = require('../infrastructure/connection')
 const formatoDataHora = 'YYYY-MM-DD HH:mm:ss'
 
 const padronizaDataHora = (dataHora) => {
