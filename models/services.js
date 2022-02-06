@@ -1,87 +1,88 @@
-const moment = require('moment')
-const conexao = require('../infrastructure/connection')
-const formatoDataHora = 'YYYY-MM-DD HH:mm:ss'
+const moment = require("moment");
+const connection = require("../infrastructure/connection");
+const FORMAT_DATE_TIME = "YYYY-MM-DD HH:mm:ss";
 
-const padronizaDataHora = (dataHora) => {
-    return moment(dataHora, 'DD/MM/YYYY').format(formatoDataHora);
+const standardDateTime = (dataHora) => {
+  return moment(dataHora, "DD/MM/YYYY").format(FORMAT_DATE_TIME);
+};
+
+const createCurrentDateTime = () => {
+  return moment().format(FORMAT_DATE_TIME);
+};
+
+const sendToDatabase = (sql, data = null, res) => {
+  connection.query(sql, data, (error, result) => {
+    if (!data) data = result;
+
+    if (error) {
+      res.status(400).json(error);
+    } else {
+      res.status(200).json(data);
+    }
+  });
+};
+
+class Service {
+  add(service, res) {
+    const dateCreation = createCurrentDateTime();
+    const dateMoment = standardDateTime(service.date);
+
+    const isDateValid = moment(dateMoment).isSameOrAfter(dateCreation);
+    const isClientValid = service.client.length >= 5;
+
+    const validations = [
+      {
+        name: "date",
+        message: "Date should be older than current",
+        valid: isDateValid,
+      },
+      {
+        name: "client",
+        message: "Client's name must have more than 5 characters",
+        valid: isClientValid,
+      },
+    ];
+
+    const errors = validations.filter((campo) => !campo.valid);
+    const hasErrors = errors.length;
+
+    if (hasErrors) {
+      res.status(400).json(errors);
+    } else {
+      const serviceWithDate = { ...service, dateCreation, date: dateMoment };
+      const sql = "INSERT INTO Services SET ?";
+      sendToDatabase(sql, [serviceWithDate], res);
+    }
+  }
+
+  list(res) {
+    const sql = "SELECT * FROM Services";
+
+    sendToDatabase(sql, null, res);
+  }
+
+  searchById(id, res) {
+    const sql = `SELECT * FROM Services WHERE id=${id}`;
+
+    sendToDatabase(sql, null, res);
+  }
+
+  change(id, values, res) {
+    if (values.date) {
+      values.date = moment(values.date, "DD/MM/YYYY").format(
+        "YYYY-MM-DD HH:mm:ss"
+      );
+    }
+    const sql = `UPDATE Services SET ? WHERE id=${id}`;
+
+    sendToDatabase(sql, [values], res);
+  }
+
+  delete(id, res) {
+    const sql = `DELETE FROM Services WHERE id=${id}`;
+
+    sendToDatabase(sql, [{ id }], res);
+  }
 }
 
-const geraDataHoraAtual = () => {
-    return moment().format(formatoDataHora);
-}
-
-const conexaoFinal = (sql, dados = null, res ) => {
-    conexao.query(sql, dados, (erro, resultados) => {
-        
-        if (!dados) dados = resultados
-        
-        if(erro){
-            res.status(400).json(erro);
-        } else {
-            res.status(200).json(dados);
-        }
-    });
-}
-
-class Atendimento {
-    adiciona(atendimento, res){    
-        const dataCriacao = geraDataHoraAtual();
-        const dataMoment = padronizaDataHora(atendimento.data);
-
-        const dataEhValida = moment(dataMoment).isSameOrAfter(dataCriacao);
-        const clienteEhValido = atendimento.cliente.length >= 5;
-
-        const validacoes = [
-            {
-                nome: 'data',
-                mensagem: 'Data deve ser posterior a data atual',
-                valido: dataEhValida
-            },
-            {
-                nome: 'cliente',
-                mensagem: 'Nome do cliente deve ter mais de 5 caracteres.',
-                valido: clienteEhValido
-            }
-        ];
-
-        const erros = validacoes.filter(campo => !campo.valido);
-        const existemErros = erros.length;
-
-        if(existemErros){
-            res.status(400).json(erros)
-        } else {
-            const atendimentoDatado = {...atendimento, dataCriacao, data: dataMoment}
-            const sql = 'INSERT INTO Atendimentos SET ?'
-            conexaoFinal(sql, [atendimentoDatado], res);
-        }
-    }
-
-    lista(res){
-        const sql = 'SELECT * FROM Atendimentos';
-
-        conexaoFinal(sql, null, res);
-    }
-
-    buscaPorId(id, res){
-        const sql = `SELECT * FROM Atendimentos WHERE id=${id}`;
-
-        conexaoFinal(sql, null, res);
-    }
-
-    altera(id, valores, res){
-        if (valores.data) {
-            valores.data = moment(valores.data, 'DD/MM/YYYY').format('YYYY-MM-DD HH:mm:ss');
-        }
-        const sql = `UPDATE Atendimentos SET ? WHERE id=${id}`
-
-        conexaoFinal(sql, [valores], res);
-    }
-
-    delete(id, res){
-        const sql = `DELETE FROM Atendimentos WHERE id=${id}`;
-
-        conexaoFinal(sql, [{id}], res);
-    }
-}
-
-module.exports = new Atendimento; 
+module.exports = new Service();
