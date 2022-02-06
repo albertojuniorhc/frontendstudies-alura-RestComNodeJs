@@ -1,16 +1,35 @@
 const moment = require('moment')
 const conexao = require('../infraestrutura/conexao')
+const formatoDataHora = 'YYYY-MM-DD HH:mm:ss'
+
+const padronizaDataHora = (dataHora) => {
+    return moment(dataHora, 'DD/MM/YYYY').format(formatoDataHora);
+}
+
+const geraDataHoraAtual = () => {
+    return moment().format(formatoDataHora);
+}
+
+const conexaoFinal = (sql, dados = null, res ) => {
+    conexao.query(sql, dados, (erro, resultados) => {
+        
+        if (!dados) dados = resultados
+        
+        if(erro){
+            res.status(400).json(erro);
+        } else {
+            res.status(200).json(dados);
+        }
+    });
+}
 
 class Atendimento {
     adiciona(atendimento, res){    
-    // adiciona({data, cliente, ...resAtendimento}, res){
-        const dataCriacao = moment().format('YYYY-MM-DD HH:mm:ss');
-        const dataMoment = moment(atendimento.data, 'DD/MM/YYYY').format('YYYY-MM-DD HH:mm:ss'); // pegando a data enviada pelo client, e colocando no padrao do moment
+        const dataCriacao = geraDataHoraAtual();
+        const dataMoment = padronizaDataHora(atendimento.data);
 
         const dataEhValida = moment(dataMoment).isSameOrAfter(dataCriacao);
         const clienteEhValido = atendimento.cliente.length >= 5;
-
-        // console.log(dataEhValida, clienteEhValido)
 
         const validacoes = [
             {
@@ -25,7 +44,7 @@ class Atendimento {
             }
         ];
 
-        const erros = validacoes.filter(campo => !campo.valido); //NAO ENTENDI A SINTAXE ==> Retorna um array sempre que econtrar o valor "false" na chave "valido"
+        const erros = validacoes.filter(campo => !campo.valido);
         const existemErros = erros.length;
 
         if(existemErros){
@@ -33,67 +52,35 @@ class Atendimento {
         } else {
             const atendimentoDatado = {...atendimento, dataCriacao, data: dataMoment}
             const sql = 'INSERT INTO Atendimentos SET ?'
-    
-            conexao.query(sql, atendimentoDatado, (erro, resultados) => {
-                if(erro){
-                    res.status(400).json(erro);
-                } else {
-                    res.status(201).json(atendimento);
-                }
-            });
+            conexaoFinal(sql, [atendimentoDatado], res);
         }
     }
 
     lista(res){
         const sql = 'SELECT * FROM Atendimentos';
 
-        conexao.query(sql, (erro, resultados) => {
-            if (erro){
-                res.status(400).json(erro);
-            } else {
-                res.status(200).json(resultados);
-            }
-        });
+        conexaoFinal(sql, null, res);
     }
 
     buscaPorId(id, res){
         const sql = `SELECT * FROM Atendimentos WHERE id=${id}`;
 
-        conexao.query(sql, (erro, resultados) => {
-            const atendimento = resultados[0]
-            if (erro){
-                res.status(400).json(erro);
-            } else {
-                res.status(200).json(atendimento);
-            }
-        });
+        conexaoFinal(sql, null, res);
     }
 
     altera(id, valores, res){
         if (valores.data) {
             valores.data = moment(valores.data, 'DD/MM/YYYY').format('YYYY-MM-DD HH:mm:ss');
         }
-        const sql = `UPDATE Atendimentos SET ? WHERE id=?`
+        const sql = `UPDATE Atendimentos SET ? WHERE id=${id}`
 
-        conexao.query(sql, [valores, id], (erro, resultados) => {
-            if (erro){
-                res.status(400).json(erro);
-            } else {
-                res.status(200).json(valores);
-            }
-        });
+        conexaoFinal(sql, [valores], res);
     }
 
     delete(id, res){
-        const sql = 'DELETE FROM Atendimentos WHERE id=?';
+        const sql = `DELETE FROM Atendimentos WHERE id=${id}`;
 
-        conexao.query(sql, id, (erro, resultados) => {
-            if (erro){
-                res.status(400).json(erro);
-            } else {
-                res.status(200).json({id});
-            }
-        });
+        conexaoFinal(sql, [{id}], res);
     }
 }
 
