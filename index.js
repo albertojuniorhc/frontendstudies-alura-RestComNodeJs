@@ -1,3 +1,4 @@
+require('dotenv').config();
 const customExpress = require("./config/customExpress");
 const connection = require("./infrastructure/connection");
 const Tables = require("./infrastructure/tables");
@@ -10,7 +11,7 @@ connection.connect((error) => {
 
     Tables.init(connection);
     const app = customExpress();
-    const tcpPort = 3000;
+    const tcpPort = process.env.PORT;
     app.listen(tcpPort, () => {
       console.log(`WebServer running on ${tcpPort}`);
     });
