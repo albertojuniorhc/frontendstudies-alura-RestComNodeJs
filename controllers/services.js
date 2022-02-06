@@ -1,28 +1,28 @@
-const Atendimento = require('../models/services')
+const Service = require('../models/services')
 
 module.exports = (app) => {
-    app.get('/atendimentos', (req, res) => {
-        Atendimento.lista(res);
+    app.get('/service', (req, res) => {
+        Service.lista(res);
     });
 
-    app.get('/atendimentos/:id', (req, res) => {
+    app.get('/service/:id', (req, res) => {
         const id = parseInt(req.params.id);
-        Atendimento.buscaPorId(id, res)
+        Service.buscaPorId(id, res)
     })
     
-    app.post('/atendimentos', (req, res) => {
+    app.post('/service', (req, res) => {
         const atendimento = req.body;
-        Atendimento.adiciona(atendimento, res);
+        Service.adiciona(atendimento, res);
     });
 
-    app.patch('/atendimentos/:id', (req, res) => {
+    app.patch('/service/:id', (req, res) => {
         const id = parseInt(req.params.id);
-        const valores = req.body; //Valores que serão editados
-        Atendimento.altera(id, valores, res);
+        const values = req.body; //Values that will be edited;
+        Service.altera(id, values, res);
     });
 
-    app.delete('/atendimentos/:id', (req, res) => {
+    app.delete('/service/:id', (req, res) => {
         const id = parseInt(req.params.id);
-        Atendimento.delete(id, res);
+        Service.delete(id, res);
     });
 }

@@ -1,18 +1,18 @@
 const customExpress = require('./config/customExpress');
-const conexao = require('./infrastructure/connection');
-const Tabelas = require('./infrastructure/tables')
+const connection = require('./infrastructure/connection');
+const Tables = require('./infrastructure/tables')
 
-conexao.connect((erro) => {
-    if(erro){
-        console.log(erro)
+connection.connect((error) => {
+    if(error){
+        console.log(error)
     } else {
         console.log('** Database Online! **')
         
-        Tabelas.init(conexao)
+        Tables.init(connection)
         const app = customExpress();
         const tcpPort = 3000;
         app.listen(tcpPort, () => {
-            console.log(`Servidor WEB rodando na porta ${tcpPort}`)
+            console.log(`WebServer running on ${tcpPort}`)
         })
         
     }
